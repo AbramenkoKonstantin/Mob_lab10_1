@@ -1,36 +1,40 @@
 package com.example.mydialer
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class Adapter(
-    private val context: Context,
-    private val list: List<Contact>
-) : RecyclerView.Adapter<Adapter.ViewHolder>() {
+class ContactItemDiffCallback : DiffUtil.ItemCallback<Contact>() {
+    override fun areItemsTheSame(oldItem: Contact, newItem: Contact) = oldItem == newItem
+    override fun areContentsTheSame(oldItem: Contact, newItem: Contact) = oldItem == newItem
+}
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val name: TextView = view.findViewById(R.id.textName)
-        val phone: TextView = view.findViewById(R.id.textPhone)
-        val type: TextView = view.findViewById(R.id.textType)
+class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private val textName: TextView = view.findViewById(R.id.textName)
+    private val textPhone: TextView = view.findViewById(R.id.textPhone)
+    private val textType: TextView = view.findViewById(R.id.textType)
+
+    fun bindTo(contact: Contact) {
+        textName.text = contact.name
+        textPhone.text = contact.phone
+        textType.text = contact.type
     }
+}
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.r_view_item, parent, false)
+class Adapter : ListAdapter<Contact, RecyclerView.ViewHolder>(ContactItemDiffCallback()) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.r_view_item, parent, false)
         return ViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return list.count()
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val data = list[position]
-        holder.name.text = data.name
-        holder.phone.text = data.phone
-        holder.type.text = data.type
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val data = currentList[position]
+        val viewHolder: ViewHolder = holder as ViewHolder
+        viewHolder.bindTo(data)
     }
 }
